@@ -81,11 +81,11 @@ function collect {
     then
         echo -n " updating"
         cd "$repo"
-        git pull "$host":"$org"/"$repo" >> "$log" 2>&1
+        git pull "$host":"$org"/"$repo" 2>&1 | tee "$log"
         cd "$workdir"
     else
         echo -n " cloning"
-        git clone "$host":"$org"/"$repo" >> "$log" 2>&1
+        git clone "$host":"$org"/"$repo" 2>&1 | tee "$log"
         if [ $? -ne 0 ]
         then
             echo " ERROR"
@@ -128,8 +128,32 @@ function grade {
         return 1
     fi
 
-    git tag -a Graded -m "This version is graded." "$commit" >> "$log" 2>&1
-    git checkout -b $grade_branch "$commit" >> "$log" 2>&1
+
+    echo
+    echo checking ${grade_branch}
+    exists=`git show-ref refs/heads/${grade_branch}`
+
+    if [ -n "$exists" ]; then
+         echo
+         echo refs/heads/${grade_branch} exists!
+         git checkout master
+         git branch -d ${grade_branch}
+         #git push origin --delete ${grade_branch}
+    fi
+
+    if git rev-parse -q --verify "refs/tags/Graded" >/dev/null; then
+        echo "tag found"
+        git tag -d Graded
+        git push origin :refs/tags/Graded
+    else
+        echo "tag not found"
+    fi
+
+    echo pre-TAGGED
+    git tag -a Graded -m "This version is graded." "$commit" 2>&1 | tee "$log"
+    echo TAGGED
+
+    git checkout -b $grade_branch "$commit" 2>&1 | tee "$log"
 
     echo ""
     cd "$workdir"
@@ -156,7 +180,7 @@ function returnFunc {
     cd "$repo"
 
     echo -n " checkout"
-    git checkout master >> "$log" 2>&1
+    git checkout master 2>&1 | tee "$log"
     if [ ! $? -eq 0 ]
     then
         echo " CANNOT CHECKOUT MASTER"
@@ -164,18 +188,18 @@ function returnFunc {
         return 1
     fi
     echo -n " pull"
-    git pull origin master >> "$log" 2>&1
+    git pull origin master 2>&1 | tee "$log"
     if [ ! $? -eq 0 ]
     then
         echo " CANNOT PULL"
         cd "$workdir"
         return 1
     fi
-    git merge "$grade_branch" >> "$log" 2>&1
+    git merge "$grade_branch" 2>&1 | tee "$log"
     if [ $? -eq 0 ]
     then
         echo -n " push"
-        git push origin master >> "$log" 2>&1
+        git push origin master 2>&1 | tee "$log"
     else
         echo " MERGE CONFLICT"
         cd "$workdir"
