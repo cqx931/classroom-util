@@ -18,13 +18,18 @@ in=repos.js
 out=students.txt
 usr=${1:-$(whoami)}
 pass=${2}
+url="https://api.github.com/orgs/SchoolOfCreativeMedia/repos?type=private&per_page=100&page="
+START=1
+END=2
 
+for i in $(eval echo "{$START..$END}"); do
 if [ -z "$pass" ]; 
 then
-  curl -u ${usr} "https://api.github.com/orgs/SchoolOfCreativeMedia/repos?type=private&per_page=100" > ${in}
+  curl -u ${usr} ${url}$i 
 else
-  curl -u ${usr}:${pass}  "https://api.github.com/orgs/SchoolOfCreativeMedia/repos?type=private&per_page=100" > ${in}
+  curl -u ${usr}:${pass} ${url}$i 
 fi
+done > ${in}
 
 cat ${in} | jq '.[] | .name' | egrep  ${assignment} | grep -v test | sed 's/"//g' > tmp1.txt
 
