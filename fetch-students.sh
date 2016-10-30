@@ -7,12 +7,19 @@ assignment="imc-assignment-9"
 #
 # finds all private repos for $assignment not including 'test' in the name
 #
-# usage: $ ./fetch-students.sh [username]
+# usage: $ ./fetch-students.sh [username] [password] (will prompt if password is not supplied)
 #
 
 in=repos.js
 out=students.txt
 usr=${1:-$(whoami)}
+pass=${2}
 
-curl -u ${usr}  https://api.github.com/orgs/SchoolOfCreativeMedia/repos?type=private > ${in}
+if [ -z "$pass" ]; 
+then
+  curl -u ${usr} "https://api.github.com/orgs/SchoolOfCreativeMedia/repos?type=private&per_page=100" > ${in}
+else
+  curl -u ${usr}:${pass}  "https://api.github.com/orgs/SchoolOfCreativeMedia/repos?type=private&per_page=100" > ${in}
+fi
+
 cat ${in} | jq '.[] | .name' | egrep  ${assignment} | grep -v test | sed 's/"//g' #> ${out}
