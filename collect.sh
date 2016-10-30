@@ -1,1 +1,4 @@
-./classroom.sh collect classdata.txt imc-assignment-9 
+input="students.txt"
+assignment="imc-assignment-9"
+
+./classroom.sh collect ${input} ${assignment}

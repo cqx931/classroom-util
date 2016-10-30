@@ -2,6 +2,7 @@
 
 # NOTE: needs to add pagination support: https://developer.github.com/guides/getting-started/#pagination
 
+orgname="SchoolOfCreativeMedia"
 assignment="imc-assignment-9"
 
 #
@@ -25,4 +26,12 @@ else
   curl -u ${usr}:${pass}  "https://api.github.com/orgs/SchoolOfCreativeMedia/repos?type=private&per_page=100" > ${in}
 fi
 
-cat ${in} | jq '.[] | .name' | egrep  ${assignment} | grep -v test | sed 's/"//g' #> ${out}
+cat ${in} | jq '.[] | .name' | egrep  ${assignment} | grep -v test | sed 's/"//g' > tmp1.txt
+
+sed "s/^${assignment}-//" tmp1.txt > tmp2.txt
+sort tmp2.txt -o tmp1.txt
+echo ${orgname} | cat - tmp1.txt > ${out}
+
+head ${out}
+
+

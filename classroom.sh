@@ -79,12 +79,12 @@ function collect {
 
     if [ -d $repo ]
     then
-        echo -n " updating"
+        echo -en " updating\n"
         cd "$repo"
         git pull "$host":"$org"/"$repo" 2>&1 | tee "$log"
         cd "$workdir"
     else
-        echo -n " cloning"
+        echo -en " cloning\n"
         git clone "$host":"$org"/"$repo" 2>&1 | tee "$log"
         if [ $? -ne 0 ]
         then
