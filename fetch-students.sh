@@ -9,6 +9,9 @@ assignment="imc-assignment-9"
 #
 # usage: $ ./fetch-students.sh [username] [password] (will prompt if password is not supplied)
 #
+# rather than typing a password on the command-line, save to file only readable by yourself, then do:
+#      $ ./fetch-students.sh username `cat passwordfile`
+#
 
 in=repos.js
 out=students.txt
